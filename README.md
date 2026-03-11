@@ -40,7 +40,7 @@ memory/
 |---------|-------------|
 | **"record"** | Extract knowledge from the current conversation and save to `knowledge/` |
 | **"distill"** | Batch-extract knowledge from accumulated `logs/` |
-| **"看看 todo"** | Review and process pending todo items |
+| **"check todo"** | Review and process pending todo items |
 
 ### Outside CC (shell commands, won't interrupt CC)
 
