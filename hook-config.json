@@ -1,0 +1,14 @@
+{
+  "PreCompact": [
+    {
+      "matcher": "",
+      "hooks": [
+        {
+          "type": "agent",
+          "prompt": "Context is about to be compacted. Append a concise summary of this session's work to the daily log file in the project's memory directory at memory/logs/YYYY-MM-DD.md (use today's date). Format: timestamp + what was done + key outcomes. Create the file and directory if they don't exist. Keep each entry to 3-5 lines. Do NOT attempt to categorize or distill - just log what happened.",
+          "timeout": 120
+        }
+      ]
+    }
+  ]
+}
