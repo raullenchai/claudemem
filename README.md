@@ -21,16 +21,18 @@ memory/
   MEMORY.md              # Index, < 100 lines, auto-loaded every session
   logs/                  # Auto-written by PreCompact hook
     2026-03-11.md        # Daily session logs
-  knowledge/             # Written by "record" and "distill" commands
-    decisions.md         # Architecture decisions (why A over B)
-    gotchas.md           # Non-obvious bugs and pitfalls
-    patterns.md          # Established code patterns and conventions
-    dependencies.md      # External library/API key behaviors
-    preferences.md       # User preferences and workflow style
+  knowledge/             # Auto-organized by domain
+    <domain>.md          # Domains created automatically based on project content
 
 .claude/
   todo.md                # Ideas and tasks injected from outside CC
 ```
+
+Knowledge domains are **not predefined**. CC creates domain files automatically based on what you're working on. For example:
+
+- Software project: `architecture.md`, `testing.md`, `deployment.md`, `api-design.md`, `gotchas.md`
+- Finance/research project: `market-data.md`, `risk-models.md`, `strategies.md`, `regulatory.md`
+- Any project: `preferences.md` (user workflow preferences)
 
 ## Commands
 
@@ -55,7 +57,7 @@ The `td` command writes directly to `.claude/todo.md` in the current project. CC
 ## How It Works
 
 1. **PreCompact hook**: Before Claude Code compresses context, an agent automatically appends a session summary to `logs/YYYY-MM-DD.md`
-2. **"record"**: You say "record" mid-conversation when something worth keeping comes up. CC extracts knowledge points and writes them to the appropriate category file under `knowledge/`
+2. **"record"**: You say "record" mid-conversation when something worth keeping comes up. CC extracts knowledge points and writes them to auto-determined domain files under `knowledge/`
 3. **"distill"**: After logs accumulate over days/weeks, you say "distill" and CC batch-processes all unprocessed logs into `knowledge/`
 4. **MEMORY.md**: An index file that CC reads at every session start, pointing to relevant knowledge files
 5. **`td` command**: Write todos from any terminal without interrupting CC's current work
