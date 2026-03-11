@@ -12,7 +12,7 @@ echo "Installing claudemem..."
 mkdir -p "$CLAUDE_DIR"
 
 # --- Append to CLAUDE.md ---
-MARKER="## Memory 系统（per project）"
+MARKER="## Memory System (per project)"
 
 if [ -f "$CLAUDE_MD" ] && grep -qF "$MARKER" "$CLAUDE_MD"; then
     echo "CLAUDE.md already contains claudemem config, skipping."

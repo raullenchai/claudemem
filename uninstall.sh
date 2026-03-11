@@ -10,7 +10,7 @@ echo "Uninstalling claudemem..."
 # --- Remove Todo and Memory sections from CLAUDE.md ---
 if [ -f "$CLAUDE_MD" ]; then
     CHANGED=false
-    for MARKER in "## Todo 系统" "## Memory 系统（per project）"; do
+    for MARKER in "## Todo System" "## Memory System (per project)"; do
         if grep -qF "$MARKER" "$CLAUDE_MD"; then
             awk -v marker="$MARKER" '
                 BEGIN { skip=0 }
