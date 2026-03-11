@@ -27,11 +27,9 @@ if [ ! -f "$SETTINGS" ]; then
     echo '{}' > "$SETTINGS"
 fi
 
-# Check if PreCompact hook already exists
 if grep -q '"PreCompact"' "$SETTINGS"; then
     echo "settings.json already has PreCompact hook, skipping."
 else
-    # Use a temporary file for safe JSON merge
     if command -v jq &> /dev/null; then
         HOOK_CONFIG=$(cat "$SCRIPT_DIR/hook-config.json")
         jq --argjson hooks "$HOOK_CONFIG" '
@@ -48,25 +46,48 @@ else
     fi
 fi
 
-# --- Global gitignore for INBOX.md ---
-GLOBAL_GITIGNORE=$(git config --global core.excludesfile 2>/dev/null || echo "")
-if [ -z "$GLOBAL_GITIGNORE" ]; then
-    GLOBAL_GITIGNORE="$HOME/.gitignore_global"
-    git config --global core.excludesfile "$GLOBAL_GITIGNORE"
-fi
+# --- Add td() function to shell config ---
+SHELL_RC="$HOME/.zshrc"
+[ ! -f "$SHELL_RC" ] && SHELL_RC="$HOME/.bashrc"
 
-if [ -f "$GLOBAL_GITIGNORE" ] && grep -qF "INBOX.md" "$GLOBAL_GITIGNORE"; then
-    echo "INBOX.md already in global gitignore, skipping."
+TD_MARKER="# claudemem: quick todo capture"
+
+if [ -f "$SHELL_RC" ] && grep -qF "$TD_MARKER" "$SHELL_RC"; then
+    echo "td function already in $SHELL_RC, skipping."
 else
-    echo "INBOX.md" >> "$GLOBAL_GITIGNORE"
-    echo "Added INBOX.md to global gitignore ($GLOBAL_GITIGNORE)"
+    cat >> "$SHELL_RC" << 'SHELL_FUNC'
+
+# claudemem: quick todo capture (bypasses CC conversation)
+td() {
+  local root=$(git rev-parse --show-toplevel 2>/dev/null)
+  if [ -z "$root" ]; then
+    echo "Not in a git project" >&2
+    return 1
+  fi
+  local todo="$root/.claude/todo.md"
+  mkdir -p "$root/.claude"
+  [ ! -f "$todo" ] && echo "# Todo" > "$todo"
+  if [ -n "$1" ]; then
+    echo "- $(date '+%m-%d %H:%M') $*" >> "$todo"
+  else
+    echo "- $(date '+%m-%d %H:%M') " >> "$todo"
+    ${EDITOR:-vim} "$todo"
+    return
+  fi
+  echo "Added to $todo"
+}
+SHELL_FUNC
+    echo "Added td function to $SHELL_RC"
 fi
 
 echo ""
 echo "Done! claudemem is now active."
 echo ""
 echo "Usage:"
-echo "  record   - Save knowledge from current conversation"
-echo "  distill  - Extract knowledge from accumulated logs"
+echo "  record          - Say to CC: save knowledge from current conversation"
+echo "  distill         - Say to CC: extract knowledge from accumulated logs"
+echo '  td "your idea"  - Shell: add todo without interrupting CC'
 echo ""
 echo "Logs are written automatically before context compaction."
+echo ""
+echo "Restart your shell or run: source $SHELL_RC"

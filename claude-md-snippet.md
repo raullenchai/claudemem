@@ -1,3 +1,9 @@
+## Todo 系统
+- 用户通过 shell 命令 `td "想法"` 直接写入项目的 `.claude/todo.md`，不经过 CC 对话
+- 对话开始时，检查 `.claude/todo.md`，如果有内容，主动告知用户有 N 条待处理 todo
+- 当用户说"看看 todo"时，读取并逐条讨论/执行
+- 处理完的条目删除
+
 ## Memory 系统（per project）
 
 每个项目在 auto-memory 目录下的结构：

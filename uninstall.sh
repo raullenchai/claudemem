@@ -7,19 +7,22 @@ SETTINGS="$CLAUDE_DIR/settings.json"
 
 echo "Uninstalling claudemem..."
 
-# --- Remove from CLAUDE.md ---
+# --- Remove Todo and Memory sections from CLAUDE.md ---
 if [ -f "$CLAUDE_MD" ]; then
-    # Remove everything between the marker and the next top-level heading (or EOF)
-    START_MARKER="## Memory 系统（per project）"
-    if grep -qF "$START_MARKER" "$CLAUDE_MD"; then
-        # Use awk to remove the claudemem section
-        awk -v marker="$START_MARKER" '
-            BEGIN { skip=0 }
-            $0 ~ marker { skip=1; next }
-            skip && /^## / { skip=0 }
-            !skip { print }
-        ' "$CLAUDE_MD" > "$CLAUDE_MD.tmp" && mv "$CLAUDE_MD.tmp" "$CLAUDE_MD"
-        echo "Removed memory system instructions from $CLAUDE_MD"
+    CHANGED=false
+    for MARKER in "## Todo 系统" "## Memory 系统（per project）"; do
+        if grep -qF "$MARKER" "$CLAUDE_MD"; then
+            awk -v marker="$MARKER" '
+                BEGIN { skip=0 }
+                $0 ~ marker { skip=1; next }
+                skip && /^## / { skip=0 }
+                !skip { print }
+            ' "$CLAUDE_MD" > "$CLAUDE_MD.tmp" && mv "$CLAUDE_MD.tmp" "$CLAUDE_MD"
+            CHANGED=true
+        fi
+    done
+    if [ "$CHANGED" = true ]; then
+        echo "Removed claudemem instructions from $CLAUDE_MD"
     else
         echo "No claudemem config found in $CLAUDE_MD"
     fi
@@ -37,6 +40,23 @@ else
     echo "No PreCompact hook found in $SETTINGS"
 fi
 
+# --- Remove td() function from shell config ---
+SHELL_RC="$HOME/.zshrc"
+[ ! -f "$SHELL_RC" ] && SHELL_RC="$HOME/.bashrc"
+
+TD_MARKER="# claudemem: quick todo capture"
+if [ -f "$SHELL_RC" ] && grep -qF "$TD_MARKER" "$SHELL_RC"; then
+    awk -v marker="$TD_MARKER" '
+        BEGIN { skip=0 }
+        $0 ~ marker { skip=1; next }
+        skip && /^}$/ { skip=0; next }
+        !skip { print }
+    ' "$SHELL_RC" > "$SHELL_RC.tmp" && mv "$SHELL_RC.tmp" "$SHELL_RC"
+    echo "Removed td function from $SHELL_RC"
+fi
+
 echo ""
 echo "Done! claudemem config removed."
-echo "Your memory files (logs/, knowledge/) were NOT deleted."
+echo "Your memory files (logs/, knowledge/, todo) were NOT deleted."
+echo ""
+echo "Restart your shell or run: source $SHELL_RC"
